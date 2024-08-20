@@ -46,6 +46,18 @@ jobs:
       - name: Build Docker Image
         run: docker build -t node-app .
 
+      # - name: Login Dockerhub
+      # - uses: actions/checkout@v3
+      #   env:
+      #     DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+      #     DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+      #   run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        
+      # - name: Build the Docker image
+      #   run: docker build -t $DOCKER_USERNAME/node-app:latest .
+      # - name: Push to Dockerhub
+      #   run: docker push $DOCKER_USERNAME/node-app:latest
+
   deploy:
     runs-on: git-workflow
     name: Deploy Docker Container
@@ -54,10 +66,17 @@ jobs:
       - name: Stop and Remove Old Container
         run: |
           docker stop node-app-container || true
-          docker rm node-app-container || true
+          docker rm -f node-app-container || true
 
       - name: Run Docker Container
         run: docker run -d --name node-app-container -p 8080:5000 node-app
+
+      # - name: Pull Docker image
+      #   run: docker pull $DOCKER_USERNAME/node-app:latest
+      # - name: Delete Old docker container
+      #   run: docker rm -f node-app-container || true
+      # - name: Run Docker Container
+      #   run: docker run -d --name node-app-container -p 8080:5000  $DOCKER_USERNAME/node-app:latest
 
       - name: Get Docker Container IP
         run: |
