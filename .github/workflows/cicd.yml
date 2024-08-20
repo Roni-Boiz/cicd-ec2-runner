@@ -64,12 +64,6 @@ jobs:
           CONTAINER_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' node-app-container)
           echo "Container IP is $CONTAINER_IP"
           echo "$CONTAINER_IP" > container_ip.txt
-      
-      - name: Upload Container IP Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: container-ip
-          path: container_ip.txt
 
       - name: Prune Unused Docker Images
         run: docker image prune -a -f
