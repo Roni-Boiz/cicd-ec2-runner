@@ -57,7 +57,7 @@ jobs:
           docker rm node-app-container || true
 
       - name: Run Docker Container
-        run: docker run -d --name node-app-container -p 80:80 node-app
+        run: docker run -d --name node-app-container -p 8080:5000 node-app
 
       - name: Prune Unused Docker Images
         run: docker image prune -a -f

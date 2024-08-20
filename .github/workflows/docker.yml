@@ -39,8 +39,9 @@ jobs:
           sudo systemctl start docker
           sudo systemctl enable docker
           sudo chmod 666 /var/run/docker.sock
+          echo "docker_installed=true" >> $GITHUB_ENV
           echo "Docker installed successfully!"
 
       - name: Verify Docker Installation
-        if: env.docker_installed == 'false'
+        if: env.docker_installed == 'true'
         run: docker --version
