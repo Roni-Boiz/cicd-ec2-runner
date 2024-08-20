@@ -35,6 +35,7 @@ jobs:
 
   proxy-setup:
     runs-on: git-workflow
+    needs: install-nginx
     steps:
       - name: Verify Nginx Installation
         if: env.nginx_installed == 'true'
