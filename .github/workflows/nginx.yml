@@ -19,11 +19,11 @@ jobs:
         shell: bash
 
       - name: Prevent Re-run if Nginx is Installed
-        if: env.nginx_installed == 'true'
+        if: $nginx_installed == 'true'
         run: exit 0
 
       - name: Install Nginx
-        if: env.nginx_installed == 'false'
+        if: $nginx_installed == 'false'
         run: |
           sudo apt-get update
           sudo apt-get install nginx -y
@@ -39,7 +39,7 @@ jobs:
   proxy-setup:
     runs-on: git-workflow
     needs: install-nginx
-    if: env.nginx_installed == 'true'
+    if: $nginx_installed == 'true'
     steps:
       - name: Read Container ID
         run: |
