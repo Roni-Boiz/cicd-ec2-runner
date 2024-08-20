@@ -15,7 +15,9 @@ jobs:
             echo "docker_installed=true" >> $GITHUB_ENV
           else
             echo "docker_installed=false" >> $GITHUB_ENV
-
+          fi
+        shell: /usr/bin/bash -e {0}
+        
       - name: Prevent Re-run if Docker is Installed
         if: env.docker_installed == 'true'
         run: exit 0
