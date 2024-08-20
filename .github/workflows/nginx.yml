@@ -53,4 +53,4 @@ jobs:
         
       - name: Setup Proxy
         if: env.nginx_installed == 'true'
-        run: sudo sed -i '/location \/ {/a \    proxy_pass http://$CONTAINER_IP:8080' /etc/nginx/sites-available/default
+        run: sudo sed -i "/location \/ {/a \       proxy_pass http://$CONTAINER_IP:8080;" /etc/nginx/sites-available/default
