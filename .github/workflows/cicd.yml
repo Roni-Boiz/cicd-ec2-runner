@@ -26,7 +26,7 @@ jobs:
         run: node server.js > /dev/null 2>&1 &
 
   build:
-    runs-on: self-hosted
+    runs-on: git-workflow
     name: Build Docker Image
     needs: test
     steps:
@@ -43,7 +43,7 @@ jobs:
         run: docker build -t node-app .
 
   deploy:
-    runs-on: self-hosted
+    runs-on: git-workflow
     name: Deploy Docker Container
     needs: build
     steps:
