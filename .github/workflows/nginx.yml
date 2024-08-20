@@ -1,10 +1,6 @@
 name: Install Nginx Configure
 
 on:
-  workflow_run:
-    workflows: ["CI/CD Pipeline"]
-    types:
-      - completed
   workflow_dispatch:
 
 jobs:
@@ -37,16 +33,12 @@ jobs:
           echo "nginx_installed=true" >> $GITHUB_ENV
           echo "Nginx installed successfully!"
 
-      - name: Verify Docker Installation
+      - name: Verify Nginx Installation
         if: env.nginx_installed == 'true'
         run: nginx -v
 
-      - name: Download Container IP Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: container-ip
-
       - name: Read Container ID
+        if: env.nginx_installed == 'true'
         run: |
           CONTAINER_IP=$(cat container_ip.txt)
           echo "Container IP is $CONTAINER_IP"
