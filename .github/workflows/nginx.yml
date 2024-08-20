@@ -1,0 +1,56 @@
+name: Install Nginx Configure
+
+on:
+  workflow_run:
+    workflows: ["CI/CD Pipeline"]
+    types:
+      - completed
+  workflow_dispatch:
+
+jobs:
+  install-docker:
+    runs-on: git-workflow
+    steps:
+      - name: Check if Niginx is already installed
+        id: check-nginx
+        run: |
+          if command -v nginx &> /dev/null; then
+            echo "Nginx is already installed."
+            echo "nginx_installed=true" >> $GITHUB_ENV
+          else
+            echo "nginx_installed=false" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Prevent Re-run if Nginx is Installed
+        if: env.nginx_installed == 'true'
+        run: exit 0
+
+      - name: Install Nginx
+        if: env.nginx_installed == 'false'
+        run: |
+          sudo apt-get update
+          sudo apt-get install nginx -y
+          sudo ufw allow 'Nginx Full'
+          sudo systemctl start nginx
+          sudo systemctl enable nginx
+          echo "nginx_installed=true" >> $GITHUB_ENV
+          echo "Nginx installed successfully!"
+
+      - name: Verify Docker Installation
+        if: env.nginx_installed == 'true'
+        run: nginx -v
+
+      - name: Download Container IP Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: container-ip
+
+      - name: Read Container ID
+        run: |
+          CONTAINER_IP=$(cat container_ip.txt)
+          echo "Container IP is $CONTAINER_IP"
+        
+      - name: Setup Proxy
+        if: env.nginx_installed == 'true'
+        run: sudo sed -i '/location \/ {/a \    proxy_pass http://$CONTAINER_IP:8080' /etc/nginx/sites-available/default
