@@ -1,4 +1,4 @@
-name: Install Nginx & Proxy Setup 
+name: Proxy Setup 
 
 on:
   workflow_dispatch:
@@ -51,5 +51,17 @@ jobs:
         
       - name: Setup Proxy
         run: |
-          sudo sed -i "/location \/ {/a \                proxy_pass http://$CONTAINER_IP:5000;" /etc/nginx/sites-available/default
+          awk -v container_ip="$CONTAINER_IP" '
+          /location \/ \{/ {
+              if (!found) {
+                  found = 1
+                  print
+                  print "                proxy_pass " container_ip
+                  next
+              }
+          }
+          {
+              print
+          }
+          ' /etc/nginx/sites-available/default > temp_file && mv temp_file /etc/nginx/sites-available/default
           sudo systemctl reload nginx
