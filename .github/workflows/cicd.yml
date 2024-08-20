@@ -1,0 +1,59 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Node.js Tests
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '21'  # or your required Node.js version
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Start Node.js Application
+        run: node server.js > /dev/null 2>&1 &
+
+  build:
+    runs-on: self-hosted
+    name: Build Docker Image
+    needs: test
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Check Docker Version
+        run: docker --version
+
+      - name: Build Docker Image
+        run: docker build -t node-app .
+
+  deploy:
+    runs-on: self-hosted
+    name: Deploy Docker Container
+    needs: build
+    steps:
+      - name: Stop and Remove Old Container
+        run: |
+          docker stop node-app-container || true
+          docker rm node-app-container || true
+
+      - name: Run Docker Container
+        run: docker run -d --name node-app-container -p 80:80 node-app
+
+      - name: Prune Unused Docker Images
+        run: docker image prune -a -f
