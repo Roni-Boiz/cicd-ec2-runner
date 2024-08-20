@@ -66,7 +66,7 @@ jobs:
           echo "$CONTAINER_IP" > container_ip.txt
       
       - name: Upload Container IP Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: container-ip
           path: container_ip.txt
