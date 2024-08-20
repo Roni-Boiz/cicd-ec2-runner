@@ -6,24 +6,26 @@ on:
 jobs:
   install-nginx:
     runs-on: git-workflow
+    outputs:
+      nginx_installed: ${{ steps.check-nginx.outputs.nginx_installed }}
     steps:
       - name: Check if Niginx is already installed
         id: check-nginx
         run: |
           if command -v nginx &> /dev/null; then
             echo "Nginx is already installed."
-            echo "nginx_installed=true" >> $GITHUB_ENV
+            echo "::set-output name=nginx_installed::true"
           else
-            echo "nginx_installed=false" >> $GITHUB_ENV
+            echo "::set-output name=nginx_installed::false"
           fi
         shell: bash
 
       - name: Prevent Re-run if Nginx is Installed
-        if: env.nginx_installed == 'true'
+        if: steps.check-nginx.outputs.nginx_installed == 'true'
         run: exit 0
 
       - name: Install Nginx
-        if: env.nginx_installed == 'false'
+        if: steps.check-nginx.outputs.nginx_installed == 'false'
         run: |
           sudo apt-get update
           sudo apt-get install nginx -y
@@ -36,20 +38,18 @@ jobs:
   proxy-setup:
     runs-on: git-workflow
     needs: install-nginx
+    if: needs.install-nginx.outputs.nginx_installed == 'true'
     steps:
       - name: Verify Nginx Installation
-        if: env.nginx_installed == 'true'
         run: nginx -v
 
       - name: Read Container ID
-        if: env.nginx_installed == 'true'
         run: |
           CONTAINER_IP=$(cat container_ip.txt)
           echo "CONTAINER_IP=$CONTAINER_IP" >> $GITHUB_ENV 
           echo "Container IP is $CONTAINER_IP"
         
       - name: Setup Proxy
-        if: env.nginx_installed == 'true'
         run: |
           sudo sed -i "/location \/ {/a \                proxy_pass http://$CONTAINER_IP:5000;" /etc/nginx/sites-available/default
           sudo systemctl reload nginx
