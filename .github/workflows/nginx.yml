@@ -56,7 +56,7 @@ jobs:
               if (!found) {
                   found = 1
                   print
-                  print "                proxy_pass " container_ip
+                  print "                proxy_pass http://" container_ip ":5000"
                   next
               }
           }
