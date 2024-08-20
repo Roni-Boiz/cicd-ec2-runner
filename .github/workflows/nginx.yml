@@ -63,5 +63,5 @@ jobs:
           {
               print
           }
-          ' /etc/nginx/sites-available/default > temp_file && mv temp_file /etc/nginx/sites-available/default
+          ' /etc/nginx/sites-available/default > temp_file && sudo mv temp_file /etc/nginx/sites-available/default
           sudo systemctl reload nginx
