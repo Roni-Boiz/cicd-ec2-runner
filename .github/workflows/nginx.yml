@@ -1,10 +1,10 @@
-name: Install Nginx Configure
+name: Install Nginx & Proxy Setup 
 
 on:
   workflow_dispatch:
 
 jobs:
-  install-docker:
+  install-nginx:
     runs-on: git-workflow
     steps:
       - name: Check if Niginx is already installed
@@ -33,6 +33,9 @@ jobs:
           echo "nginx_installed=true" >> $GITHUB_ENV
           echo "Nginx installed successfully!"
 
+  proxy-setup:
+    runs-on: git-workflow
+    steps:
       - name: Verify Nginx Installation
         if: env.nginx_installed == 'true'
         run: nginx -v
@@ -41,8 +44,11 @@ jobs:
         if: env.nginx_installed == 'true'
         run: |
           CONTAINER_IP=$(cat container_ip.txt)
+          echo "CONTAINER_IP=$CONTAINER_IP" >> $GITHUB_ENV 
           echo "Container IP is $CONTAINER_IP"
         
       - name: Setup Proxy
         if: env.nginx_installed == 'true'
-        run: sudo sed -i "/location \/ {/a \       proxy_pass http://$CONTAINER_IP:8080;" /etc/nginx/sites-available/default
+        run: |
+          sudo sed -i "/location \/ {/a \                proxy_pass http://$CONTAINER_IP:5000;" /etc/nginx/sites-available/default
+          sudo systemctl reload nginx
