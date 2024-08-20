@@ -6,43 +6,41 @@ on:
 jobs:
   install-nginx:
     runs-on: git-workflow
-    outputs:
-      nginx_installed: ${{ steps.check-nginx.outputs.nginx_installed }}
     steps:
       - name: Check if Niginx is already installed
         id: check-nginx
         run: |
           if command -v nginx &> /dev/null; then
             echo "Nginx is already installed."
-            echo "::set-output name=nginx_installed::true"
+            echo "nginx_installed=true" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=nginx_installed::false"
+            echo "nginx_installed=false" >> $GITHUB_OUTPUT
           fi
         shell: bash
 
       - name: Prevent Re-run if Nginx is Installed
-        if: steps.check-nginx.outputs.nginx_installed == 'true'
+        if: env.nginx_installed == 'true'
         run: exit 0
 
       - name: Install Nginx
-        if: steps.check-nginx.outputs.nginx_installed == 'false'
+        if: env.nginx_installed == 'false'
         run: |
           sudo apt-get update
           sudo apt-get install nginx -y
           sudo ufw allow 'Nginx Full'
           sudo systemctl start nginx
           sudo systemctl enable nginx
-          echo "nginx_installed=true" >> $GITHUB_ENV
+          echo "nginx_installed=true" >> $GITHUB_OUTPUT
           echo "Nginx installed successfully!"
+
+      - name: Verify Nginx Installation
+        run: nginx -v
 
   proxy-setup:
     runs-on: git-workflow
     needs: install-nginx
-    if: needs.install-nginx.outputs.nginx_installed == 'true'
+    if: env.nginx_installed == 'true'
     steps:
-      - name: Verify Nginx Installation
-        run: nginx -v
-
       - name: Read Container ID
         run: |
           CONTAINER_IP=$(cat container_ip.txt)
