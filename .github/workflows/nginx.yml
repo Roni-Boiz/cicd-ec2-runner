@@ -51,7 +51,7 @@ jobs:
         
       - name: Setup Proxy
         run: |
-          awk -v container_ip="$CONTAINER_IP" '
+          sudo awk -v container_ip="$CONTAINER_IP" '
           /location \/ \{/ {
               if (!found) {
                   found = 1
