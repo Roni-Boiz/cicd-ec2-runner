@@ -19,30 +19,30 @@ This repository shows steps to set up a self-hosted GitHub Actions runner on an 
 1. **Sign in to the AWS Management Console.**
 2. **Navigate to the EC2 Dashboard.**
 3. **Click "Launch Instance" to create a new instance.**
-4. **Add Tags:** (Optional) Add tags to help manage your instance (e.g., git-workflow).
+4. **Add Tags:** Add tags to help manage your instance (e.g., git-workflow).
 5. **Choose an Amazon Machine Image (AMI):** Select a Linux-based AMI, such as Ubuntu (64-bit x86).
 6. **Choose an Instance Type:** Select an instance type based on your needs (e.g., t2.micro or t3.micro for testing).
 7. **Generate Key pair:** Create new key pair with key_pair_type:RSA and file_format:.pem to connect to host if needed.
 8. **Configure Network and Security Group:** Add rules to allow inbound traffic (e.g., SSH (port 22) for remote access).
 
-    > [!TIP]
-    > For testing purpose create new security group and allow all trafic (Allow SSH traffic, Allow HTTPS traffic, Allow HTTP traffic). You can modify them later from attached security group.
+> [!TIP]
+> For testing purpose create new security group and allow all trafic (Allow SSH traffic, Allow HTTPS traffic, Allow HTTP traffic). You can modify them later from attached security group.
 
 9. **Add Storage:** Configure storage if the default is sufficient (8GB to 12 GB is sufficient).
 10. **Review and Launch:** Review your settings and launch the instance. Make sure to create or select a key pair for SSH access.
 
-    image
-
+    ![AWS EC2 Instance Config](https://github.com/user-attachments/assets/ff7a7d5f-5578-4344-a70b-a6380f252479)
 
 ### 2. Connect to Your EC2 Instance
 
 1. **Open a terminal on your local machine.**
 2. **Use SSH to connect to your EC2 instance:**
+
    ```bash
-   ssh -i "your-key.pem" ubuntu@your-ec2-public-ip
+   $ ssh -i "your-key.pem" ubuntu@your-ec2-public-ip
    ```
-    > [!TIP]
-    > Connect to aws instance through AWS Management Console
+> [!NOTE]
+> Connect to AWS EC2 instance through AWS Management Console
 
 
 ### 3. Setup Self Hosted Runner
@@ -68,11 +68,9 @@ This repository shows steps to set up a self-hosted GitHub Actions runner on an 
 
     # Last step, run it!
     $ ./run.sh
-
     ```
-
-    image
-
+    
+    ![Runner Setup](https://github.com/user-attachments/assets/04106930-975f-4563-88fe-00e3af72d1d1)
 
 2. **Execute each command one after the other:** Go to your EC2 instance and execute each and every code snippets. When you enter `./config.sh` enter follwoing details:
     - runner group --> keep as default
@@ -80,11 +78,10 @@ This repository shows steps to set up a self-hosted GitHub Actions runner on an 
     - runner labels --> git-workflow
     - work folder --> keep default
 
-    > [!TIP]
-    > At the end you should see **Connected to GitHub** message upon successful connection
+> [!TIP]
+> At the end you should see **Connected to GitHub** message upon successful connection
 
-    image
-
+![Runner Success](https://github.com/user-attachments/assets/42d6a34a-7cad-4eb9-8bc7-64822d8c2b82)
 
 ### 4. Start Build and Deply Pipeline
 
@@ -92,7 +89,7 @@ Once the runner is configured, pipeline will start automatically on connected EC
 
 You can see the progress of each workflow in the actions tab. Upon completed of nginx workflow you should be able to access your application in EC2 instance **public DNS address**.
 
-image
+![Application](https://github.com/user-attachments/assets/d27395a2-179a-4e62-bb77-75d353ffcf5c)
 
 ### 5. Verify the Pipeline
 
@@ -100,18 +97,18 @@ Make change to you application and see will it reflect on the next build.
 
 **Docker Workflow**
 
-image
+![Docker Workflow](https://github.com/user-attachments/assets/d3c16f1c-37af-4773-b1e7-88926c544c5d)
 
 **CI&CD Workflow**
 
-image
+![CI&CD Workflow](https://github.com/user-attachments/assets/7052666a-386c-4c0c-81df-58402629bf94)
 
 **Nginx Workflow**
 
-image
+![Nginx Workflow](https://github.com/user-attachments/assets/c76ee008-5868-4a05-b448-062a8096b546)
 
 > [!TIP]
-> If every thing is working as intend you can update the docker workflow to stop run it each time you make changes to main branch and leave it as manual workflow by commenting out on --> push --> branch --> main
+> If every thing is working as intend you can update the docker workflow to stop run it each time you make changes to main branch and leave it as manual workflow by commenting out `on --> push --> branch --> main`
 
 ### 6. Remove Self Hosted Runner
 
@@ -119,19 +116,19 @@ Finally if you are done or want to stop and remove your application and terminat
 
 1. **Open your repository:** Go to Settings --> Actions --> Runners --> Select your runner (git-workflow) --> Remove Runner.Then you will see steps safely remove runner from EC2 instance.
 
+    ![Remove Runner](https://github.com/user-attachments/assets/76f1c354-fa4c-46c4-adf8-8475030894ba)
+
+2. **Remove runner:** Go to your EC2 instance and execute the command
+
     ```bash
     // Remove the runner
     $ ./config.sh remove --token <your-token>
     ```
+    
+> [!WARNING]
+> Make sure you are in the right folder `~/actions-runner`
 
-    image
-
-2. **Remove runner:** Go to your EC2 instance and execute the command
-
-    > [!WARNING]
-    > Make sure you are in the right folder `~/actions-runner`
-
-    image
+![Remove Runner](https://github.com/user-attachments/assets/092e190f-84ea-4135-bd69-f1e05ebb19ca)
 
 2. **Terminate Instance:** Go to your AWS Management console --> EC2 terminate the created instance (git-workflow) and then remove any additional resources (vpc, security groups, etc)
 
