@@ -1,11 +1,15 @@
-name: Install Docker
+name: Docker
 
 on:
+  push:
+    branches:
+      - main
+
   workflow_dispatch:
 
 jobs:
   install-docker:
-    runs-on: git-workflow
+    runs-on: [self-hosted, git-workflow]
     steps:
       - name: Check if Docker is already installed
         id: check-docker
