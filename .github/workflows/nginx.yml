@@ -1,11 +1,16 @@
-name: Proxy Setup 
+name: Nginx
 
 on:
+  workflow_run:
+    workflows: [CI/CD Pipeline]
+    types:
+      - completed
+
   workflow_dispatch:
 
 jobs:
   install-nginx:
-    runs-on: git-workflow
+    runs-on: [self-hosted, git-workflow]
     outputs:
       nginx_installed: ${{ steps.check-nginx.outputs.nginx_installed }}
     steps:
@@ -39,7 +44,7 @@ jobs:
         run: nginx -v
 
   proxy-setup:
-    runs-on: git-workflow
+    runs-on: [self-hosted, git-workflow]
     needs: install-nginx
     if: ${{ needs.install-nginx.outputs.nginx_installed == 'true' }}
     steps:
