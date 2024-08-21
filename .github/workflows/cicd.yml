@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   workflow_run:
-    workflows: [Install Docker Once]
+    workflows: [Docker]
     types:
       - completed
   push:
@@ -30,7 +30,7 @@ jobs:
         run: node server.js > /dev/null 2>&1 &
 
   build:
-    runs-on: git-workflow
+    runs-on: [self-hosted, git-workflow]
     name: Build Docker Image
     needs: test
     steps:
@@ -47,7 +47,6 @@ jobs:
         run: docker build -t node-app .
 
       # - name: Login Dockerhub
-      # - uses: actions/checkout@v3
       #   env:
       #     DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
       #     DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
@@ -55,6 +54,7 @@ jobs:
         
       # - name: Build the Docker image
       #   run: docker build -t $DOCKER_USERNAME/node-app:latest .
+
       # - name: Push to Dockerhub
       #   run: docker push $DOCKER_USERNAME/node-app:latest
 
@@ -73,8 +73,10 @@ jobs:
 
       # - name: Pull Docker image
       #   run: docker pull $DOCKER_USERNAME/node-app:latest
+
       # - name: Delete Old docker container
       #   run: docker rm -f node-app-container || true
+
       # - name: Run Docker Container
       #   run: docker run -d --name node-app-container -p 8080:5000  $DOCKER_USERNAME/node-app:latest
 
